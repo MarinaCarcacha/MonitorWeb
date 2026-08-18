@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light only">
+  <title>Departamento de Vigilancia | Selector de Semana Epidemiológica</title>
+  <style>
+    :root {
+      --bg: #eef5f0;
+      --bg-2: #dcecdf;
+      --card: #ffffff;
+      --ink: #113027;
+      --muted: #5d7269;
+      --green: #82a55a;
+      --green-2: #6f9445;
+      --green-3: #5f8239;
+      --gold: #c89c1d;
+      --gold-soft: #f4d57c;
+      --border: rgba(17, 48, 39, 0.12);
+      --shadow: 0 18px 40px rgba(10, 34, 27, 0.10);
+      --radius: 24px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(244, 213, 124, 0.32), transparent 24%),
+        radial-gradient(circle at right 16%, rgba(22, 116, 90, 0.12), transparent 26%),
+        linear-gradient(180deg, #f7faf8 0%, var(--bg) 46%, #edf4ee 100%);
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .wrap {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 32px;
+      padding: 18px 22px;
+      background:
+        linear-gradient(135deg, rgba(130, 165, 90, 0.98), rgba(111, 148, 69, 0.96) 55%, rgba(95, 130, 57, 0.98)),
+        var(--green);
+      color: #f6fbf8;
+      box-shadow: var(--shadow);
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+
+    .hero::before {
+      width: 260px;
+      height: 260px;
+      right: -90px;
+      top: -80px;
+      background: radial-gradient(circle, rgba(244, 213, 124, 0.22) 0%, rgba(244, 213, 124, 0.03) 58%, transparent 70%);
+    }
+
+    .hero::after {
+      width: 180px;
+      height: 180px;
+      right: 14%;
+      bottom: -92px;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.02) 60%, transparent 72%);
+    }
+
+    .brand {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .brand-mark {
+      width: auto;
+      height: auto;
+      flex: none;
+      padding: 8px 10px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(255,255,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 8px 20px rgba(10, 34, 27, 0.12);
+    }
+
+    .brand-mark img {
+      display: block;
+      width: 178px;
+      height: auto;
+    }
+
+    .brand-copy {
+      display: grid;
+      gap: 2px;
+      align-content: center;
+    }
+
+    .brand-org {
+      font-family: Arial, Helvetica, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.76rem;
+      line-height: 1.2;
+      font-weight: 700;
+      color: rgba(255,255,255,0.90);
+    }
+
+    .brand-dept {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 0.95rem;
+      line-height: 1.15;
+      font-weight: 700;
+      color: #fffdf7;
+      letter-spacing: 0.01em;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: clamp(1.6rem, 3vw, 2.7rem);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      max-width: 16ch;
+      font-weight: 800;
+    }
+
+    .lead {
+      margin: 10px 0 0;
+      max-width: 62ch;
+      font-size: 0.98rem;
+      line-height: 1.55;
+      color: rgba(246, 251, 248, 0.92);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.08);
+      color: #f8fbf9;
+      font-size: 0.93rem;
+      backdrop-filter: blur(8px);
+    }
+
+    .pill strong { font-weight: 700; }
+
+    .content {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+      gap: 20px;
+      margin-top: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255,255,255,0.84);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    .main-panel {
+      padding: 22px;
+    }
+
+    .panel-head {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .panel-title {
+      margin: 0;
+      font-size: 1.12rem;
+      letter-spacing: -0.01em;
+    }
+
+    .panel-subtitle {
+      margin: 6px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+      max-width: 58ch;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      border: 1px solid rgba(13, 78, 60, 0.16);
+      background: linear-gradient(180deg, #ffffff 0%, #f2f8f4 100%);
+      color: var(--green);
+      font: inherit;
+      border-radius: 999px;
+      padding: 10px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      box-shadow: 0 6px 16px rgba(15, 60, 46, 0.08);
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      border-color: rgba(13, 78, 60, 0.24);
+      box-shadow: 0 10px 20px rgba(15, 60, 46, 0.12);
+    }
+
+    .status {
+      margin: 0 0 18px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(200, 156, 29, 0.24);
+      background: linear-gradient(180deg, rgba(244, 213, 124, 0.24), rgba(255, 250, 230, 0.78));
+      color: #5c4600;
+      line-height: 1.55;
+      display: none;
+    }
+
+    .status strong {
+      display: block;
+      margin-bottom: 2px;
+      color: #3f2f00;
+    }
+
+    .week-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+      gap: 14px;
+    }
+
+    .week-card {
+      min-height: 132px;
+      border-radius: 20px;
+      padding: 18px;
+      border: 1px solid rgba(13, 78, 60, 0.14);
+      background:
+        linear-gradient(180deg, #fff 0%, #f6faf7 100%);
+      box-shadow: 0 10px 24px rgba(13, 42, 33, 0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      transition: transform 160ms ease, box-shadow 160ms ease, border-color 160ms ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .week-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -40px auto;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(22, 116, 90, 0.14) 0%, transparent 68%);
+    }
+
+    .week-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(22, 116, 90, 0.26);
+      box-shadow: 0 14px 30px rgba(13, 42, 33, 0.11);
+    }
+
+    .week-card.latest {
+      border-color: rgba(200, 156, 29, 0.45);
+      background:
+        linear-gradient(180deg, rgba(255, 252, 238, 1) 0%, rgba(247, 250, 245, 1) 100%);
+    }
+
+    .week-card.latest .tag {
+      background: rgba(200, 156, 29, 0.14);
+      color: #7e5d00;
+    }
+
+    .week-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .week-label {
+      font-size: 0.95rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .week-number {
+      margin-top: 6px;
+      font-size: 2rem;
+      line-height: 1;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: -0.04em;
+    }
+
+    .tag {
+      flex: none;
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      background: rgba(22, 116, 90, 0.10);
+      color: var(--green-2);
+    }
+
+    .week-note {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 0.95rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .sidebar {
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .sidebar-card {
+      border-radius: 20px;
+      padding: 18px;
+      background: linear-gradient(180deg, rgba(13, 78, 60, 0.06), rgba(255, 255, 255, 0.92));
+      border: 1px solid rgba(13, 78, 60, 0.10);
+    }
+
+    .sidebar-card h2 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      color: var(--green);
+    }
+
+    .sidebar-card p,
+    .sidebar-card li {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .sidebar-card ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .footer {
+      margin-top: 18px;
+      color: rgba(17, 48, 39, 0.72);
+      font-size: 0.92rem;
+      text-align: center;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 920px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        order: 2;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .wrap {
+        width: min(100% - 20px, 1160px);
+        padding-top: 10px;
+      }
+
+      .hero, .main-panel, .sidebar {
+        padding: 16px;
+      }
+
+      h1 {
+        font-size: clamp(1.55rem, 8vw, 2.2rem);
+      }
+
+      .week-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">
+          <img src="gobierno-er-logo.png" alt="Gobierno de Entre Ríos">
+        </div>
+        <div class="brand-copy">
+          <div class="brand-org">Ministerio de Salud de Entre Ríos</div>
+          <div class="brand-dept">Departamento de Vigilancia</div>
+        </div>
+      </div>
+      <h1>Selector de Semana Epidemiológica</h1>
+      <p class="lead">
+        Elegí una SE para abrir el monitor correspondiente en una pestaña nueva.
+        La página lee un manifiesto JSON local y marca automáticamente la última semana publicada.
+      </p>
+      <div class="hero-meta">
+        <div class="pill"><strong>Entrada temporal</strong> sin tocar `index.html`</div>
+          <div class="pill" id="latest-pill">Buscando última SE...</div>
+      </div>
+    </header>
+
+    <div class="content">
+      <main class="panel main-panel">
+        <div class="panel-head">
+          <div>
+            <h2 class="panel-title">Semanas disponibles</h2>
+            <p class="panel-subtitle">
+              Las tarjetas se abren en una pestaña aparte. Si aparece una SE nueva en el manifiesto JSON,
+              se te avisará automáticamente al recargar o mientras la página esté abierta.
+            </p>
+          </div>
+          <div class="actions">
+            <button class="button" id="refresh-btn" type="button">Actualizar listado</button>
+          </div>
+        </div>
+
+        <div id="status" class="status" aria-live="polite"></div>
+
+        <div id="week-grid" class="week-grid">
+          <a class="week-card" href="SE29.html" target="_blank" rel="noopener noreferrer">
+            <div class="week-top">
+              <div>
+                <div class="week-number">SE 29</div>
+              </div>
+            </div>
+            <p class="week-note">Abrir el monitor de la semana epidemiológica 29.</p>
+          </a>
+          <a class="week-card" href="SE28.html" target="_blank" rel="noopener noreferrer">
+            <div class="week-top">
+              <div>
+                <div class="week-number">SE 28</div>
+              </div>
+            </div>
+            <p class="week-note">Abrir el monitor de la semana epidemiológica 28.</p>
+          </a>
+          <a class="week-card" href="SE27.html" target="_blank" rel="noopener noreferrer">
+            <div class="week-top">
+              <div>
+                <div class="week-number">SE 27</div>
+              </div>
+            </div>
+            <p class="week-note">Abrir el monitor de la semana epidemiológica 27.</p>
+          </a>
+          <a class="week-card" href="SE26.html" target="_blank" rel="noopener noreferrer">
+            <div class="week-top">
+              <div>
+                <div class="week-number">SE 26</div>
+              </div>
+            </div>
+            <p class="week-note">Abrir el monitor de la semana epidemiológica 26.</p>
+          </a>
+          <a class="week-card" href="SE25.html" target="_blank" rel="noopener noreferrer">
+            <div class="week-top">
+              <div>
+                <div class="week-number">SE 25</div>
+              </div>
+            </div>
+            <p class="week-note">Abrir el monitor de la semana epidemiológica 25.</p>
+          </a>
+          <a class="week-card" href="SE24.html" target="_blank" rel="noopener noreferrer">
+            <div class="week-top">
+              <div>
+                <div class="week-number">SE 24</div>
+              </div>
+            </div>
+            <p class="week-note">Abrir el monitor de la semana epidemiológica 24.</p>
+          </a>
+        </div>
+      </main>
+
+      <aside class="panel sidebar">
+        <section class="sidebar-card">
+          <h2>Cómo funciona</h2>
+          <ul>
+            <li>Lee un archivo `se-manifest.json` con la etiqueta y la ruta de cada SE.</li>
+            <li>Ordena las semanas por número y destaca la más reciente.</li>
+            <li>Guarda la última SE detectada en tu navegador para avisar cambios.</li>
+          </ul>
+        </section>
+        <section class="sidebar-card">
+          <h2>Notas</h2>
+          <p>
+            `index.html` queda intacto por ahora. Cuando quieras, esta portada puede pasar a ser la
+            entrada principal sin perder compatibilidad.
+          </p>
+        </section>
+        <section class="sidebar-card">
+          <h2>Estado</h2>
+          <p id="sync-state">Esperando sincronización con el manifiesto...</p>
+        </section>
+      </aside>
+    </div>
+
+    <div class="footer">
+      Departamento de Vigilancia Epidemiológica - Entre Ríos
+    </div>
+  </div>
+
+  <script>
+    (() => {
+      const manifestUrl = "se-manifest.json";
+      const fallbackManifest = [
+        { label: "SE 29", path: "SE29.html" },
+        { label: "SE 28", path: "SE28.html" },
+        { label: "SE 27", path: "SE27.html" },
+        { label: "SE 26", path: "SE26.html" },
+        { label: "SE 25", path: "SE25.html" },
+        { label: "SE 24", path: "SE24.html" }
+      ];
+      const seenKey = "monitorweb:lastSeenSE";
+      const statusEl = document.getElementById("status");
+      const gridEl = document.getElementById("week-grid");
+      const latestPill = document.getElementById("latest-pill");
+      const syncState = document.getElementById("sync-state");
+      const refreshBtn = document.getElementById("refresh-btn");
+
+      let lastRenderedLatest = null;
+      let refreshTimer = null;
+
+      const parseWeek = (value) => {
+        const match = /SE\s*(\d+)/i.exec(String(value));
+        return match ? Number(match[1]) : null;
+      };
+
+      const formatWeek = (week) => `SE ${week}`;
+
+      const getSeenWeek = () => {
+        const value = Number(localStorage.getItem(seenKey));
+        return Number.isFinite(value) ? value : null;
+      };
+
+      const setSeenWeek = (week) => {
+        if (Number.isFinite(week)) {
+          localStorage.setItem(seenKey, String(week));
+        }
+      };
+
+      const showStatus = (title, message) => {
+        statusEl.innerHTML = `<strong>${title}</strong>${message}`;
+        statusEl.style.display = "block";
+      };
+
+      const hideStatus = () => {
+        statusEl.style.display = "none";
+        statusEl.innerHTML = "";
+      };
+
+      const buildCard = (entry, isLatest) => {
+        const week = parseWeek(entry.label ?? entry.path);
+        const label = entry.label || formatWeek(week);
+        const href = entry.path || `SE${week}.html`;
+        const tag = isLatest ? "Última" : "";
+        return `
+          <a class="week-card ${isLatest ? "latest" : ""}" href="${href}" target="_blank" rel="noopener noreferrer">
+            <div class="week-top">
+              <div>
+                <div class="week-number">${label}</div>
+              </div>
+              ${tag ? `<span class="tag">${tag}</span>` : ""}
+            </div>
+            <p class="week-note">Abrir el monitor de ${label}.</p>
+          </a>
+        `;
+      };
+
+      const normalizeManifest = (items) => {
+        return [...new Map(
+          items
+            .map((item) => {
+              const week = parseWeek(item.label ?? item.path);
+              const label = item.label || (Number.isFinite(week) ? formatWeek(week) : "");
+              const path = item.path || (Number.isFinite(week) ? `SE${week}.html` : "");
+              return Number.isFinite(week) && path ? { label, path, week } : null;
+            })
+            .filter(Boolean)
+            .map((item) => [item.path, item])
+        ).values()].sort((a, b) => b.week - a.week);
+      };
+
+      const renderWeeks = (entries, sourceLabel) => {
+        const ordered = normalizeManifest(entries);
+        if (!ordered.length) {
+          gridEl.innerHTML = `
+            <div class="week-card" style="grid-column: 1 / -1; cursor: default;">
+              <div class="week-top">
+                <div>
+                  <div class="week-label">Sin datos</div>
+                  <div class="week-number">No hay SE</div>
+                </div>
+                <span class="tag">Atención</span>
+              </div>
+              <p class="week-note">No se encontraron entradas válidas en el manifiesto.</p>
+            </div>
+          `;
+          latestPill.textContent = "Sin semanas detectadas";
+          syncState.textContent = "No se encontraron entradas válidas en el manifiesto.";
+          return;
+        }
+
+        const latest = ordered[0].week;
+        gridEl.innerHTML = ordered.map((entry) => buildCard(entry, entry.week === latest)).join("");
+        latestPill.textContent = `Última SE detectada: ${formatWeek(latest)}`;
+        syncState.textContent = `Listado actualizado desde ${sourceLabel}.`;
+
+        const seenWeek = getSeenWeek();
+        if (seenWeek && latest > seenWeek) {
+          showStatus(
+            "Nueva semana epidemiológica publicada",
+            `Se detectó <strong>${formatWeek(latest)}</strong>, que es posterior a la última que habías visto (${formatWeek(seenWeek)}).`
+          );
+        } else {
+          hideStatus();
+        }
+
+        if (latest !== lastRenderedLatest) {
+          setSeenWeek(latest);
+        }
+
+        lastRenderedLatest = latest;
+      };
+
+      const loadWeeks = async (isManual = false) => {
+        try {
+          latestPill.textContent = "Buscando última SE...";
+          if (isManual) {
+            syncState.textContent = "Actualizando listado...";
+          }
+
+          const response = await fetch(manifestUrl, {
+            cache: "no-store",
+          });
+
+          if (!response.ok) {
+            throw new Error(`El manifiesto respondió ${response.status}`);
+          }
+
+          const entries = await response.json();
+          renderWeeks(Array.isArray(entries) ? entries : [], "manifiesto JSON");
+          return;
+        } catch (error) {
+          console.warn("No se pudo consultar el manifiesto, usando fallback local.", error);
+          renderWeeks(fallbackManifest, "fallback local");
+          if (syncState) {
+            syncState.textContent = "No se pudo consultar el manifiesto. Se muestran las semanas guardadas localmente.";
+          }
+        }
+      };
+
+      refreshBtn.addEventListener("click", () => loadWeeks(true));
+
+      loadWeeks();
+
+      refreshTimer = window.setInterval(() => loadWeeks(false), 5 * 60 * 1000);
+
+      window.addEventListener("beforeunload", () => {
+        if (refreshTimer) {
+          window.clearInterval(refreshTimer);
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
