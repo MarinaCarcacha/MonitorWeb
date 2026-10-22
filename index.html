@@ -438,9 +438,6 @@
               Seleccione una semana epidemiológica para consultar el monitor publicado para ese período. La semana más reciente disponible se identifica automáticamente.
             </p>
           </div>
-          <div class="actions">
-            <button class="button" id="refresh-btn" type="button">Actualizar listado</button>
-          </div>
         </div>
 
         <div id="status" class="status" aria-live="polite"></div>
@@ -524,6 +521,7 @@
     (() => {
       const manifestUrl = "se-manifest.json";
       const fallbackManifest = [
+        { label: "SE 40", path: "SE40.html" },
         { label: "SE 39", path: "SE39.html" },
         { label: "SE 38", path: "SE38.html" },
         { label: "SE 37", path: "SE37.html" },
@@ -542,12 +540,10 @@
       const statusEl = document.getElementById("status");
       const gridEl = document.getElementById("week-grid");
       const latestPill = document.getElementById("latest-pill");
-      const refreshBtn = document.getElementById("refresh-btn");
 
       gridEl.innerHTML = "";
 
       let lastRenderedLatest = null;
-      let refreshTimer = null;
 
       const parseWeek = (value) => {
         const match = /SE\s*(\d+)/i.exec(String(value));
@@ -609,45 +605,7 @@
         ).values()].sort((a, b) => b.week - a.week);
       };
 
-      const getIsoWeek = (date = new Date()) => {
-        const utcDate = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
-        const day = utcDate.getUTCDay() || 7;
-        utcDate.setUTCDate(utcDate.getUTCDate() + 4 - day);
-        const yearStart = new Date(Date.UTC(utcDate.getUTCFullYear(), 0, 1));
-        return Math.ceil(((utcDate - yearStart) / 86400000 + 1) / 7);
-      };
-
-      const findNewWeeks = async (entries) => {
-        const knownWeeks = normalizeManifest(entries);
-        const latestKnown = Math.max(...knownWeeks.map((entry) => entry.week), 0);
-        const lastWeekToCheck = Math.min(getIsoWeek() + 1, 53);
-
-        if (latestKnown >= lastWeekToCheck) {
-          return entries;
-        }
-
-        const candidateWeeks = Array.from(
-          { length: lastWeekToCheck - latestKnown },
-          (_, index) => latestKnown + index + 1
-        );
-
-        const foundWeeks = await Promise.all(candidateWeeks.map(async (week) => {
-          const path = `SE${week}.html`;
-          try {
-            let response = await fetch(path, { method: "HEAD", cache: "no-store" });
-            if (response.status === 405) {
-              response = await fetch(path, { cache: "no-store" });
-            }
-            return response.ok ? { label: formatWeek(week), path } : null;
-          } catch {
-            return null;
-          }
-        }));
-
-        return [...entries, ...foundWeeks.filter(Boolean)];
-      };
-
-      const renderWeeks = (entries, sourceLabel) => {
+      const renderWeeks = (entries) => {
         const ordered = normalizeManifest(entries);
         if (!ordered.length) {
           gridEl.innerHTML = `
@@ -686,7 +644,7 @@
         lastRenderedLatest = latest;
       };
 
-      const loadWeeks = async (isManual = false) => {
+      const loadWeeks = async () => {
         try {
           latestPill.textContent = "Consultando semanas disponibles...";
           const response = await fetch(manifestUrl, {
@@ -698,26 +656,15 @@
           }
 
           const entries = await response.json();
-          const currentEntries = Array.isArray(entries) ? entries : [];
-          renderWeeks(await findNewWeeks(currentEntries), "manifiesto JSON");
+          renderWeeks(Array.isArray(entries) ? entries : []);
           return;
         } catch (error) {
-          console.warn("No se pudo consultar el manifiesto, usando fallback local.", error);
-          renderWeeks(fallbackManifest, "fallback local");
+          console.warn("No se pudo consultar el manifiesto; se usa el listado local.", error);
+          renderWeeks(fallbackManifest);
         }
       };
 
-      refreshBtn.addEventListener("click", () => loadWeeks(true));
-
       loadWeeks();
-
-      refreshTimer = window.setInterval(() => loadWeeks(false), 5 * 60 * 1000);
-
-      window.addEventListener("beforeunload", () => {
-        if (refreshTimer) {
-          window.clearInterval(refreshTimer);
-        }
-      });
     })();
   </script>
 </body>
