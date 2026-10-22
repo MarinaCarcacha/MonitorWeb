@@ -1,4 +1,12 @@
 [
+  { "label": "SE 40", "path": "SE40.html" },
+  { "label": "SE 39", "path": "SE39.html" },
+  { "label": "SE 38", "path": "SE38.html" },
+  { "label": "SE 37", "path": "SE37.html" },
+  { "label": "SE 35", "path": "SE35.html" },
+  { "label": "SE 34", "path": "SE34.html" },
+  { "label": "SE 32", "path": "SE32.html" },
+  { "label": "SE 30", "path": "SE30.html" },
   { "label": "SE 29", "path": "SE29.html" },
   { "label": "SE 28", "path": "SE28.html" },
   { "label": "SE 27", "path": "SE27.html" },
